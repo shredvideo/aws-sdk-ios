@@ -710,6 +710,31 @@ static AWSSynchronizedMutableDictionary *_serviceClients = nil;
     return [AWSTask taskForCompletionOfAllTasks:tasks];
 }
 
+- (AWSS3TransferManagerUploadRequest *)cachedUploadRequestForFilename:(NSString *)fileName
+{
+    NSMutableArray *keys = [NSMutableArray new];
+    [self.cache.diskCache enumerateObjectsWithBlock:^(AWSTMDiskCache *cache, NSString *key, id<NSCoding> object, NSURL *fileURL) {
+        [keys addObject:key];
+    }];
+    
+    for (NSString *key in keys) {
+        id cachedObject = [self.cache objectForKey:key];
+        
+        if (![cachedObject isKindOfClass:[AWSS3TransferManagerUploadRequest class]])
+        {
+            continue;
+        }
+        
+        AWSS3TransferManagerUploadRequest *uploadRequest = cachedObject;
+        if ([[[uploadRequest.body path] lastPathComponent] isEqualToString:fileName])
+        {
+            return uploadRequest;
+        }
+    }
+    
+    return nil;
+}
+
 - (AWSTask *)resumeAll:(AWSS3TransferManagerResumeAllBlock)block {
     NSMutableArray *keys = [NSMutableArray new];
     [self.cache.diskCache enumerateObjectsWithBlock:^(AWSTMDiskCache *cache, NSString *key, id<NSCoding> object, NSURL *fileURL) {

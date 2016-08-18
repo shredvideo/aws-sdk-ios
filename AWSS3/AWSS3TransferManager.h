@@ -234,6 +234,9 @@ typedef void (^AWSS3TransferManagerResumeAllBlock) (AWSRequest *request);
  */
 - (AWSTask *)clearCache;
 
+
+- (AWSS3TransferManagerUploadRequest *)cachedUploadRequestForFilename:(NSString *)fileName;
+
 @end
 
 @interface AWSS3TransferManagerUploadRequest : AWSS3PutObjectRequest
